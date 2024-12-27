@@ -1,5 +1,5 @@
 [package]
-name = "skileton1"
+name = "rust-performance-test"
 version = "0.1.0"
 edition = "2021"
 

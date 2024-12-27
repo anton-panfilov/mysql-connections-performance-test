@@ -16,14 +16,14 @@ services:
 
   sandbox:
     build:
-      context: containers/app
+      context: containers/cargo-watch
     depends_on:
       - percona
-    command: sh -c "cargo watch -x run --workdir=/code/skeleton1"
+    command: sh -c "cargo watch -x run --workdir=/code"
     environment:
       - APP_BIND=0.0.0.0:3000
       - DATABASE_URL=mysql://root:password@percona:3306/main
     ports:
       - ${APP_PORT}:3000
     volumes:
-      - ./../:/code
+      - ./../rust:/code

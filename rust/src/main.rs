@@ -90,18 +90,8 @@ async fn sqlx_serial_select_20k(
     let start = Instant::now();
 
     for i in 1..20001 {
-        let _row: (
-            u64,
-            Vec<u8>,
-            DateTime<Utc>,
-            i8,
-            i32,
-            String,
-            bool,
-            serde_json::Value,
-            Vec<u8>,
-        ) = sqlx::query_as(
-            "SELECT `id`, `guid`, `created`, `enum`, `int`, `string`, `bool`, `json`, `encrypted_json`  FROM _sandbox where id=?"
+        let _row: (u64, Vec<u8>, DateTime<Utc>, i8, i32, String, bool, serde_json::Value, Vec<u8>) = sqlx::query_as(
+            "SELECT `id`, `guid`, `created`, `enum`, `int`, `string`, `bool`, `json`, `encrypted_json` FROM _sandbox where id=?"
         )
             .bind(i)
             .fetch_one(&*pool)
