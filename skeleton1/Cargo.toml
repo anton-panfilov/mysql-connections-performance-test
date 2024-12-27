@@ -1,0 +1,16 @@
+[package]
+name = "skileton1"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum={version = "0.7.9"}
+serde={version = "1.0.216"}
+tokio={version = "1.42.0", features = ["full"]}
+tracing-subscriber = "0.3.19"
+chrono="0.4.39"
+serde_json = "1.0.134"
+
+mysql="25.0.1"
+
+sqlx = {version = "0.8.2", features = ["mysql", "runtime-tokio", "chrono"]}

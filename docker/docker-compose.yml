@@ -1,0 +1,29 @@
+version: '3.8'
+
+volumes:
+  percona:
+
+services:
+  percona:
+    image: percona/percona-server:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PERCONA_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${PERCONA_DATABASE_NAME}
+    volumes:
+      - percona:/var/lib/mysql
+    ports:
+      - ${PERCONA_PORT}:3306
+
+  sandbox:
+    build:
+      context: containers/app
+    depends_on:
+      - percona
+    command: sh -c "cargo watch -x run --workdir=/code/skeleton1"
+    environment:
+      - APP_BIND=0.0.0.0:3000
+      - DATABASE_URL=mysql://root:password@percona:3306/main
+    ports:
+      - ${APP_PORT}:3000
+    volumes:
+      - ./../:/code
