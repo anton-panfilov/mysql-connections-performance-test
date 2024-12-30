@@ -10,20 +10,53 @@ services:
       MYSQL_ROOT_PASSWORD: ${PERCONA_ROOT_PASSWORD}
       MYSQL_DATABASE: ${PERCONA_DATABASE_NAME}
     volumes:
+      - ./containers/percona/conf/my.cnf:/etc/my.cnf:ro
+      - ./containers/percona/conf/my.cnf.d:/etc/my.cnf.d:ro
       - percona:/var/lib/mysql
     ports:
       - ${PERCONA_PORT}:3306
 
-  sandbox:
+  rust:
     build:
-      context: containers/cargo-watch
+      context: containers/rust-cargo-watch
     depends_on:
       - percona
     command: sh -c "cargo watch -x run --workdir=/code"
     environment:
       - APP_BIND=0.0.0.0:3000
-      - DATABASE_URL=mysql://root:password@percona:3306/main
+      - DATABASE_URL=mysql://root:${PERCONA_ROOT_PASSWORD}@percona:3306/${PERCONA_DATABASE_NAME}
+      #- DATABASE_URL=mysql://root:password@percona:3306/main
     ports:
-      - ${APP_PORT}:3000
+      - ${RUST_PORT}:3000
     volumes:
       - ./../rust:/code
+
+  php8:
+    build:
+      context: containers/php8.3
+    volumes:
+      - ./containers/php8.3/conf/8.3/cli/php.ini:/etc/php/8.3/cli/php.ini:ro
+      - ./containers/php8.3/conf/8.3/fpm/pool.d:/etc/php/8.3/fpm/pool.d:ro
+      - ./containers/php8.3/conf/8.3/fpm/php.ini:/etc/php/8.3/fpm/php.ini:ro
+      - ./containers/php8.3/conf/8.3/fpm/php-fpm.conf:/etc/php/8.3/fpm/php-fpm.conf:ro
+      - ./../php:/code
+    environment:
+      - DB_HOST=percona
+      - DB_USER=root
+      - DB_PASS=${PERCONA_ROOT_PASSWORD}
+      - DB_BASE=${PERCONA_DATABASE_NAME}
+      - PASSPHRASE_BASE64=${PASSPHRASE_BASE64}
+    depends_on:
+      - percona
+
+  nginx:
+    build:
+      context: ./containers/nginx
+    volumes:
+      - ./containers/nginx/conf/sites-enabled:/etc/nginx/sites-enabled:ro
+      - ./containers/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./../php:/code
+    depends_on:
+      - php8
+    ports:
+      - ${PHP_PORT}:80

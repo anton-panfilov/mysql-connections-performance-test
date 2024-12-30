@@ -3,12 +3,10 @@ use mysql::*;
 use std::sync::Arc;
 use std::time::Instant;
 
-use axum::{
-    extract::Extension,
-    routing::get,
-    Router,
-};
+use axum::{extract::Extension, routing::get, Json, Router};
 use chrono::{DateTime, Utc};
+use serde::Serialize;
+use serde_json::Value;
 use sqlx::mysql::MySqlPoolOptions;
 use sqlx::MySql;
 
@@ -38,6 +36,37 @@ async fn main() {
     axum::serve(listener, app)
         .await.unwrap();
 }
+
+#[derive(Serialize)]
+struct ResponseSelect {
+    language: &'static str,
+    test: &'static str,
+    driver: &'static str,
+    method: &'static str,
+    threads: u8,
+    batch_size: u32,
+    data_size: u32,
+    columns: u8,
+    duration: f64,
+}
+
+impl ResponseSelect {
+    fn default() -> ResponseSelect {
+        ResponseSelect {
+            language: default_language(),
+            test: "select",
+            driver: "",
+            method: "",
+            threads: 1,
+            batch_size: 1,
+            data_size: 0,
+            columns: 9,
+            duration: 0.0,
+        }
+    }
+}
+
+fn default_language() -> &'static str { "rust" }
 
 // basic handler that responds with a static string
 async fn root() -> &'static str {
@@ -72,26 +101,41 @@ async fn migration(
 
 async fn mysql_serial_select_20k(
     Extension(pool): Extension<Arc<Pool>>
-) -> String {
+) -> Json<ResponseSelect> {
+    let columns: &str = "*";
+    let first_id = 1;
+    let iterations = 20000;
+
     let mut conn = pool.get_conn().unwrap();
 
     let start = Instant::now();
-
-    for i in 1..20001 {
-        let _ = conn.exec_drop(r"select * from _sandbox where id=?", (i,));
+    for i in first_id..first_id + iterations {
+        let _ = conn.query_drop(format!(r"select {columns} from _sandbox where id={i}"));
     }
+    let duration = start.elapsed().as_secs_f64();
 
-    format!("Runtime: {:.9}", start.elapsed().as_secs_f64())
+    Json(
+        ResponseSelect {
+            driver: "mysql",
+            method: "query_drop",
+            data_size: iterations,
+            duration,
+            ..ResponseSelect::default()
+        }
+    )
 }
 
 async fn sqlx_serial_select_20k(
     Extension(pool): Extension<Arc<sqlx::Pool<MySql>>>
-) -> String {
-    let start = Instant::now();
+) -> Json<ResponseSelect> {
+    let columns: &str = "`id`, `guid`, `created`, `enum`, `int`, `string`, `bool`, `json`, `encrypted_json`";
+    let first_id = 1;
+    let iterations = 20000;
 
-    for i in 1..20001 {
-        let _row: (u64, Vec<u8>, DateTime<Utc>, i8, i32, String, bool, serde_json::Value, Vec<u8>) = sqlx::query_as(
-            "SELECT `id`, `guid`, `created`, `enum`, `int`, `string`, `bool`, `json`, `encrypted_json` FROM _sandbox where id=?"
+    let start = Instant::now();
+    for i in first_id..first_id + iterations {
+        let _row: (u64, Vec<u8>, DateTime<Utc>, i8, i32, String, bool, Value, Vec<u8>) = sqlx::query_as(
+            format!("SELECT {columns} FROM _sandbox where id=?").as_str()
         )
             .bind(i)
             .fetch_one(&*pool)
@@ -100,6 +144,15 @@ async fn sqlx_serial_select_20k(
 
         // println!("{:#?}", _row);
     }
+    let duration = start.elapsed().as_secs_f64();
 
-    format!("Runtime: {:.9}", start.elapsed().as_secs_f64())
+    Json(
+        ResponseSelect {
+            driver: "sqlx.mysql",
+            method: "query_as",
+            data_size: iterations,
+            duration,
+            ..ResponseSelect::default()
+        }
+    )
 }
