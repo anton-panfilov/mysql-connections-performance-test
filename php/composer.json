@@ -1,0 +1,22 @@
+{
+  "name": "anton-panfilov/php-performance-test",
+  "type": "project",
+  "homepage": "https://github.com/anton-panfilov/mysql-connections-performance-test",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "AP\\PerformanceTest\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Anton Panfilov",
+      "email": "anton@panfilov.biz"
+    }
+  ],
+  "require": {
+    "ext-mysqli": "*",
+    "ext-openssl": "*",
+    "anton-panfilov/php-struct": "1.3.1"
+  }
+}
