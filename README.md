@@ -43,6 +43,16 @@ sed -i "s|^PASSPHRASE_BASE64=.*|PASSPHRASE_BASE64=$(openssl rand -base64 32)|" .
 
 Also, please review other settings on .env file
 
+You can also add settings with yours ip addresses to the `hosts` file, for example by default:
+```
+127.0.0.2 percona.pt
+127.0.0.3 rust.pt
+127.0.0.4 php.pt
+127.0.0.5 python.pt
+127.0.0.6 go.pt
+127.0.0.7 node.pt
+```
+
 ### Step 3: Start the Docker Environment
 ```bash
 ./up.sh

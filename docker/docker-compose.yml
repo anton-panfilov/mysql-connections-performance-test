@@ -14,7 +14,7 @@ services:
       - ./containers/percona/conf/my.cnf.d:/etc/my.cnf.d:ro
       - percona:/var/lib/mysql
     ports:
-      - ${PERCONA_PORT}:3306
+      - ${PERCONA_BIND}:3306
 
   rust:
     build:
@@ -25,11 +25,27 @@ services:
     environment:
       - APP_BIND=0.0.0.0:3000
       - DATABASE_URL=mysql://root:${PERCONA_ROOT_PASSWORD}@percona:3306/${PERCONA_DATABASE_NAME}
-      #- DATABASE_URL=mysql://root:password@percona:3306/main
     ports:
-      - ${RUST_PORT}:3000
+      - ${RUST_BIND}:3000
     volumes:
       - ./../rust:/code
+
+  golang:
+    image: cosmtrek/air
+    working_dir: /application
+    depends_on:
+      - percona
+    ports:
+      - ${GOLANG_BIND}:80
+    environment:
+      - HTTP_SERVER_PORT=80
+      - PERCONA_HOST=percona
+      - PERCONA_PORT=3306
+      - PERCONA_USERNAME=root
+      - PERCONA_PASSWORD=${PERCONA_ROOT_PASSWORD}
+      - PERCONA_DATABASE=${PERCONA_DATABASE_NAME}
+    volumes:
+      - ./../golang/http/:/application/
 
   php8:
     build:
@@ -42,8 +58,9 @@ services:
       - ./../php:/code
     environment:
       - DB_HOST=percona
+      - DB_PORT=3306
       - DB_USER=root
-      - DB_PASS=${PERCONA_ROOT_PASSWORD}
+      - DB_PASS=${PERCONA_ROOT_PASSWORD}K
       - DB_BASE=${PERCONA_DATABASE_NAME}
       - PASSPHRASE_BASE64=${PASSPHRASE_BASE64}
     depends_on:
@@ -59,4 +76,23 @@ services:
     depends_on:
       - php8
     ports:
-      - ${PHP_PORT}:80
+      - ${PHP_BIND}:80
+
+  python:
+    build:
+      context: ./containers/python
+    volumes:
+      - ./../python/src:/code
+    environment:
+      - DB_HOST=percona
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASS=${PERCONA_ROOT_PASSWORD}
+      - DB_BASE=${PERCONA_DATABASE_NAME}
+    depends_on:
+      - percona
+    ports:
+      - ${PYTHON_BIND}:80
+    # command: tail -f /dev/null
+    # command: sh -c "pip install --no-cache-dir -r requirements.txt; uvicorn src.main:app --host 0.0.0.0 --port 80 --reload"
+    command: sh -c "uvicorn main:app --host 0.0.0.0 --port 80 --reload"

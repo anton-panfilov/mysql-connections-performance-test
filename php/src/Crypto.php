@@ -2,7 +2,9 @@
 
 namespace AP\PerformanceTest;
 
-use AP\PerformanceTest\Encryption\Cryptographer;
+
+use AP\Cryptographer\CipherAlgo;
+use AP\Cryptographer\Cryptographer;
 use AP\Structure\Singleton\Singleton;
 use RuntimeException;
 
@@ -10,7 +12,7 @@ class Crypto
 {
     use Singleton;
 
-    const string ALGO = 'AES-256-CFB';
+    const CipherAlgo ALGO = CipherAlgo::aes_256_gcm;
 
     public readonly Cryptographer $cryptographer;
 
@@ -30,8 +32,9 @@ class Crypto
         $passphrase = base64_decode($passphrase_base64);
 
         $this->cryptographer = new Cryptographer(
-            algo: self::ALGO,
+            cipher_algo: self::ALGO,
             passphrase: $passphrase,
+            tag_length: 16
         );
     }
 }

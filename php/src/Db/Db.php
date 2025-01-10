@@ -26,4 +26,29 @@ class Db
             database: self::getEnvStringOptional('DB_BASE'),
         );
     }
+
+    public static function makeNewConnection(): mysqli
+    {
+        $connection = mysqli_init();
+        $connection->real_connect(
+            hostname: self::getEnvStringOptional('DB_HOST'),
+            username: self::getEnvStringOptional('DB_USER'),
+            password: self::getEnvStringOptional('DB_PASS'),
+            database: self::getEnvStringOptional('DB_BASE'),
+        );
+        return $connection;
+    }
+
+    /**
+     * @param int $count
+     * @return array<mysqli>
+     */
+    public static function makeManyConnections(int $count): array
+    {
+        $connections = [];
+        for ($i = 0; $i < $count; $i++) {
+            $connections[$i] = Db::makeNewConnection();
+        }
+        return $connections;
+    }
 }
