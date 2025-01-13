@@ -18,14 +18,12 @@ pub async fn axum_endpoint(
     let start = Instant::now();
     for i in first_id..first_id + iterations {
         let _row: (u64, Vec<u8>, DateTime<Utc>, i8, i32, String, bool, serde_json::Value, Vec<u8>) = sqlx::query_as(
-            format!("SELECT {columns} FROM _sandbox where id=?").as_str()
+            format!("SELECT {columns} FROM _sandbox where id=? limit 1").as_str()
         )
             .bind(i)
             .fetch_one(&*pool)
             .await
             .unwrap();
-
-        // println!("{:#?}", _row);
     }
     let duration = start.elapsed().as_secs_f64();
 

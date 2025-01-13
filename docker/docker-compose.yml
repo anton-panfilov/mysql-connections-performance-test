@@ -60,7 +60,7 @@ services:
       - DB_HOST=percona
       - DB_PORT=3306
       - DB_USER=root
-      - DB_PASS=${PERCONA_ROOT_PASSWORD}K
+      - DB_PASS=${PERCONA_ROOT_PASSWORD}
       - DB_BASE=${PERCONA_DATABASE_NAME}
       - PASSPHRASE_BASE64=${PASSPHRASE_BASE64}
     depends_on:

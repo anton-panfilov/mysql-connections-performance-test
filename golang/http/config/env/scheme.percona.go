@@ -9,6 +9,6 @@ func (e Environment) PerconaMain() config.Percona {
 		User:       e.DbUser,
 		Pass:       e.DbPass,
 		Base:       e.DbBase,
-		Parameters: "parseTime=true",
+		Parameters: "parseTime=true&interpolateParams=true",
 	}
 }

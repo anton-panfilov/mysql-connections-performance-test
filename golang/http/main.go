@@ -10,7 +10,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"io"
 	"log"
+	"math/rand"
+	"net/http"
 	"time"
 )
 
@@ -21,6 +24,33 @@ type Product struct {
 }
 
 const TestSelectDataSize uint32 = 20000
+
+func url_get_contents(url string) ([]byte, error) {
+	// Create a new HTTP request
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set a custom User-Agent header
+	req.Header.Set("User-Agent", "APTest/1.0")
+
+	// Use the default HTTP client to execute the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}
 
 func main() {
 	environment := env.LoadCorrectEnvironmentOrPanic()
@@ -47,6 +77,17 @@ func main() {
 	})
 
 	app.Static("/favicon.ico", "./img/favicon.svg")
+
+	app.Get("/hello-world", func(c *fiber.Ctx) error {
+		body, err := url_get_contents(
+			fmt.Sprintf("https://leaptheory.com/api/test/a1?a=%d", rand.Intn(99999)),
+		)
+		if err != nil {
+			return err
+		}
+		c.WriteString("hello world: " + string(body))
+		return nil
+	})
 
 	app.Get("/select/serial/mysql", func(c *fiber.Ctx) error {
 		first_element := uint32(1)
@@ -127,7 +168,7 @@ func main() {
 
 		start := time.Now()
 		for i := uint32(0); i < data_size; i++ {
-			gormDB.Raw("SELECT * FROM _sandbox limit 1").Scan(&result)
+			gormDB.Raw("SELECT * FROM _sandbox where id=?", i).Scan(&result)
 
 			if err != nil {
 				duration := time.Since(start).Seconds()
