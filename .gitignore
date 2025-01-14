@@ -1,5 +1,5 @@
 debug/
-php/vendor/
+servers/php/vendor/
 target/
 Cargo.lock
 **/*.rs.bk
@@ -7,4 +7,4 @@ Cargo.lock
 .idea/
 .vscode/
 .DS_Store
-php/composer.lock
+servers/php/composer.lock

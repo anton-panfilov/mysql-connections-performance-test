@@ -28,7 +28,7 @@ services:
     ports:
       - ${RUST_BIND}:3000
     volumes:
-      - ./../rust:/code
+      - ./../servers/rust:/code
 
   golang:
     image: cosmtrek/air
@@ -45,7 +45,7 @@ services:
       - PERCONA_PASSWORD=${PERCONA_ROOT_PASSWORD}
       - PERCONA_DATABASE=${PERCONA_DATABASE_NAME}
     volumes:
-      - ./../golang/http/:/application/
+      - ./../servers/golang/http/:/application/
 
   php8:
     build:
@@ -55,7 +55,7 @@ services:
       - ./containers/php8.3/conf/8.3/fpm/pool.d:/etc/php/8.3/fpm/pool.d:ro
       - ./containers/php8.3/conf/8.3/fpm/php.ini:/etc/php/8.3/fpm/php.ini:ro
       - ./containers/php8.3/conf/8.3/fpm/php-fpm.conf:/etc/php/8.3/fpm/php-fpm.conf:ro
-      - ./../php:/code
+      - ./../servers/php:/code
     environment:
       - DB_HOST=percona
       - DB_PORT=3306
@@ -72,7 +72,7 @@ services:
     volumes:
       - ./containers/nginx/conf/sites-enabled:/etc/nginx/sites-enabled:ro
       - ./containers/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./../php:/code
+      - ./../servers/php:/code
     depends_on:
       - php8
     ports:
@@ -82,7 +82,7 @@ services:
     build:
       context: ./containers/python
     volumes:
-      - ./../python/src:/code
+      - ./../servers/python/src:/code
     environment:
       - DB_HOST=percona
       - DB_PORT=3306
@@ -95,4 +95,4 @@ services:
       - ${PYTHON_BIND}:80
     # command: tail -f /dev/null
     # command: sh -c "pip install --no-cache-dir -r requirements.txt; uvicorn src.main:app --host 0.0.0.0 --port 80 --reload"
-    command: sh -c "uvicorn main:app --host 0.0.0.0 --port 80 --reload"
+    command: sh -c "uvicorn main:app --host 0.0.0.0 --port 80 --reload --workers 10"
