@@ -15,12 +15,18 @@ services:
       - percona:/var/lib/mysql
     ports:
       - ${PERCONA_BIND}:3306
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${PERCONA_ROOT_PASSWORD}" ]
+      interval: 1s
+      timeout: 1s
+      retries: 30
 
   rust:
     build:
       context: containers/rust-cargo-watch
     depends_on:
-      - percona
+      percona:
+        condition: service_healthy
     command: sh -c "cargo watch -x run --workdir=/code"
     environment:
       - APP_BIND=0.0.0.0:3000
@@ -34,7 +40,8 @@ services:
     image: cosmtrek/air
     working_dir: /application
     depends_on:
-      - percona
+      percona:
+        condition: service_healthy
     ports:
       - ${GOLANG_BIND}:80
     environment:
@@ -64,7 +71,8 @@ services:
       - DB_BASE=${PERCONA_DATABASE_NAME}
       - PASSPHRASE_BASE64=${PASSPHRASE_BASE64}
     depends_on:
-      - percona
+      percona:
+        condition: service_healthy
 
   nginx:
     build:
@@ -90,7 +98,8 @@ services:
       - DB_PASS=${PERCONA_ROOT_PASSWORD}
       - DB_BASE=${PERCONA_DATABASE_NAME}
     depends_on:
-      - percona
+      percona:
+        condition: service_healthy
     ports:
       - ${PYTHON_BIND}:80
     # command: tail -f /dev/null
@@ -103,7 +112,8 @@ services:
     volumes:
       - ./../servers/nestjs:/code
     depends_on:
-      - percona
+      percona:
+        condition: service_healthy
     ports:
       - ${NEST_BIND}:80
     environment:
