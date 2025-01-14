@@ -8,3 +8,8 @@ Cargo.lock
 .vscode/
 .DS_Store
 servers/php/composer.lock
+
+## nodejs
+/servers/nestjs/dist
+/servers/nestjs/node_modules
+servers/nestjs/build
