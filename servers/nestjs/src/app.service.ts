@@ -20,7 +20,7 @@ export class AppService {
 
     try {
       const response = await fetch(url);
-      return JSON.stringify(await response.json());
+      return await response.text();
     } catch (err) {
       throw new BadRequestException(err);
     }

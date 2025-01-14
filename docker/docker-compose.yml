@@ -96,3 +96,21 @@ services:
     # command: tail -f /dev/null
     # command: sh -c "pip install --no-cache-dir -r requirements.txt; uvicorn src.main:app --host 0.0.0.0 --port 80 --reload"
     command: sh -c "uvicorn main:app --host 0.0.0.0 --port 80 --reload --workers 10"
+
+  nest:
+    build:
+      context: ./containers/nodejs
+    volumes:
+      - ./../servers/nestjs:/code
+    depends_on:
+      - percona
+    ports:
+      - ${NEST_BIND}:80
+    environment:
+      - PORT=80
+      - DB_HOST=percona
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASS=${PERCONA_ROOT_PASSWORD}
+      - DB_BASE=${PERCONA_DATABASE_NAME}
+    command: sh -c "npm i; npm run build; npm run start"

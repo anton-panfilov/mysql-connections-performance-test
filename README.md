@@ -50,7 +50,7 @@ You can also add settings with yours ip addresses to the `hosts` file, for examp
 127.0.0.4 php.pt
 127.0.0.5 python.pt
 127.0.0.6 go.pt
-127.0.0.7 node.pt
+127.0.0.7 nest.pt
 ```
 
 ### Step 3: Start the Docker Environment

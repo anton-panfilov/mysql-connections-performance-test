@@ -8,8 +8,9 @@ func HttpClientTest(totalRequests int, numThreads int, link string) []httpclient
 		{
 			Url: "http://python.pt/http-client?link=" + url.QueryEscape(link),
 			Tags: map[string]string{
-				"lang": "python",
-				"lib":  "httpx",
+				"lang":      "python",
+				"framework": "fastapi",
+				"lib":       "httpx",
 			},
 		},
 		{
@@ -29,8 +30,17 @@ func HttpClientTest(totalRequests int, numThreads int, link string) []httpclient
 		{
 			Url: "http://go.pt/http-client?link=" + url.QueryEscape(link),
 			Tags: map[string]string{
-				"lang": "go",
-				"lib":  "net/http",
+				"lang":      "go",
+				"framework": "fiber",
+				"lib":       "net/http",
+			},
+		},
+		{
+			Url: "http://nest.pt/http-client?link=" + url.QueryEscape(link),
+			Tags: map[string]string{
+				"lang":      "nodejs",
+				"framework": "nest",
+				"lib":       "fetch",
 			},
 		},
 	}
