@@ -1,15 +1,14 @@
 package main
 
 import (
-	"api/config/env"
-	"api/schema"
 	"database/sql"
 	"fmt"
-	_ "fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gotest/libs/schema"
+	"gotest/libs/utils"
 	"io"
 	"log"
 	"net/http"
@@ -17,12 +16,6 @@ import (
 	"strconv"
 	"time"
 )
-
-type Product struct {
-	gorm.Model
-	Code  string
-	Price uint
-}
 
 func url_get_contents(url string) ([]byte, error) {
 	// Create a new HTTP request
@@ -63,8 +56,8 @@ func getDataSizeFromQuery(c *fiber.Ctx) uint32 {
 }
 
 func main() {
-	environment := env.LoadCorrectEnvironmentOrPanic()
-	db, err := sql.Open("mysql", environment.PerconaMain().DataSource())
+	environment := utils.GetEnvironmentInstance()
+	db, err := sql.Open("mysql", environment.Percona().DataSource())
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}

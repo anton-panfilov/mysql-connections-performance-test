@@ -36,7 +36,7 @@ services:
     volumes:
       - ./../servers/rust:/code
 
-  golang:
+  golang.fiber:
     image: cosmtrek/air
     working_dir: /application
     depends_on:
@@ -123,4 +123,42 @@ services:
       - DB_USER=root
       - DB_PASS=${PERCONA_ROOT_PASSWORD}
       - DB_BASE=${PERCONA_DATABASE_NAME}
-    command: sh -c "npm i; npm run build; npm run start"
+    command: sh -c "npm i; npm run build; npm run start:prod"
+
+  nest_fastify:
+    build:
+      context: ./containers/nodejs
+    volumes:
+      - ./../servers/nestjs-fastify:/code
+    depends_on:
+      percona:
+        condition: service_healthy
+    ports:
+      - ${NEST_FASTIFY_BIND}:80
+    environment:
+      - PORT=80
+      - DB_HOST=percona
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASS=${PERCONA_ROOT_PASSWORD}
+      - DB_BASE=${PERCONA_DATABASE_NAME}
+    command: sh -c "npm i; npm run build; npm run start:prod"
+
+  express:
+    build:
+      context: ./containers/nodejs
+    volumes:
+      - ./../servers/express:/code
+    depends_on:
+      percona:
+        condition: service_healthy
+    ports:
+      - ${EXPRESS_BIND}:80
+    environment:
+      - PORT=80
+      - DB_HOST=percona
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASS=${PERCONA_ROOT_PASSWORD}
+      - DB_BASE=${PERCONA_DATABASE_NAME}
+    command: sh -c "npm i; npm run build; npm run start:prod"

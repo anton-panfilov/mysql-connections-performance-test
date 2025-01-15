@@ -38,8 +38,24 @@ func HttpClientTest(totalRequests int, numThreads int, link string) []httpclient
 		{
 			Url: "http://nest.pt/http-client?link=" + url.QueryEscape(link),
 			Tags: map[string]string{
-				"lang":      "nodejs",
+				"lang":      "node",
 				"framework": "nest",
+				"lib":       "fetch",
+			},
+		},
+		{
+			Url: "http://fastify.nest.pt/http-client?link=" + url.QueryEscape(link),
+			Tags: map[string]string{
+				"lang":      "node",
+				"framework": "nest[fastify]",
+				"lib":       "fetch",
+			},
+		},
+		{
+			Url: "http://express.pt/http-client?link=" + url.QueryEscape(link),
+			Tags: map[string]string{
+				"lang":      "node",
+				"framework": "express",
 				"lib":       "fetch",
 			},
 		},

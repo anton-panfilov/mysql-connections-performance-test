@@ -51,6 +51,10 @@ You can also add settings with yours ip addresses to the `hosts` file, for examp
 127.0.0.5 python.pt
 127.0.0.6 go.pt
 127.0.0.7 nest.pt
+127.0.0.8 fastify.nest.pt
+127.0.0.9 express.pt
+127.0.0.10 no-any-server.pt
+
 ```
 
 ### Step 3: Start the Docker Environment
@@ -59,11 +63,18 @@ You can also add settings with yours ip addresses to the `hosts` file, for examp
 ```
 
 ### Step 4: Install requirements
-- php composer
+- php composer (TODO: move to docker init layer, like python and nodejs do)
 
 
-### Step 5: Access Web Servers
-Each language will expose its web server on a specific port
+### Step 5: Run tests
+available tests:
+- **hello-world** ```cd performance-tests/tests/hello-world/``` simple test return
+- **http-client** ```cd performance-tests/tests/hello-world/``` get content using http client and return content got other server
+- **mysql-select** ```cd performance-tests/tests/mysql-select/``` few/many optimized mysql queries application (selects) 
+
+to run test:
+- go to test folder ```cd {PROJECT_ROOT}/performance-tests/tests/{TEST_NAME}```
+- run ```go run main.go```
 
 ---
 

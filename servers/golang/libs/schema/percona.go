@@ -1,4 +1,4 @@
-package config
+package schema
 
 import (
 	"fmt"
@@ -30,7 +30,7 @@ func (p Percona) Validate() error {
 }
 
 func (p Percona) ValidatePanic() {
-	err := validator.New().Struct(p)
+	err := p.Validate()
 	if err != nil {
 		panic(err)
 	}
