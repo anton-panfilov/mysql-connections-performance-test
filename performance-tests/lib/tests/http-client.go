@@ -59,6 +59,14 @@ func HttpClientTest(totalRequests int, numThreads int, link string) []httpclient
 				"lib":       "fetch",
 			},
 		},
+		{
+			Url: "http://rust.pt/http-client?link=" + url.QueryEscape(link),
+			Tags: map[string]string{
+				"lang":      "rust",
+				"framework": "axum",
+				"lib":       "reqwest::Client",
+			},
+		},
 	}
 	return httpclient.RunTest(urls, totalRequests, numThreads)
 }

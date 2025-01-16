@@ -23,6 +23,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/hello-world", get(endpoint::hello_world::axum_endpoint))
+        .route("/http-client", get(endpoint::http_client::axum_endpoint))
         .route("/migration", get(endpoint::mysql::migration::axum_endpoint))
         .route("/select/serial/mysql", get(endpoint::mysql::select::mysql::axum_endpoint))
         .route("/select/serial/sqlx", get(endpoint::mysql::select::sqlx::axum_endpoint))

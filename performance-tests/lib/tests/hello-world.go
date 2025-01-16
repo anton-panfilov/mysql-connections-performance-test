@@ -11,7 +11,6 @@ func HelloWorldTest(totalRequests int, numThreads int) []httpclient.HttpTestResu
 		{Url: "http://nest.pt/hello-world", Tags: map[string]string{"lang": "node", "framework": "nest"}},
 		{Url: "http://fastify.nest.pt/hello-world", Tags: map[string]string{"lang": "node", "framework": "nest[fastify]"}},
 		{Url: "http://express.pt/hello-world", Tags: map[string]string{"lang": "node", "framework": "express"}},
-		{Url: "http://no-any-server.pt/hello-world", Tags: map[string]string{}},
 	}
 	return httpclient.RunTest(urls, totalRequests, numThreads)
 }

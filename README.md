@@ -53,7 +53,6 @@ You can also add settings with yours ip addresses to the `hosts` file, for examp
 127.0.0.7 nest.pt
 127.0.0.8 fastify.nest.pt
 127.0.0.9 express.pt
-127.0.0.10 no-any-server.pt
 
 ```
 
