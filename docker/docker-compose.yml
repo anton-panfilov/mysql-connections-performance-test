@@ -73,6 +73,7 @@ services:
     depends_on:
       percona:
         condition: service_healthy
+    command: sh -c "cd /code; composer install; /usr/sbin/php-fpm8.3 -F -O"
 
   nginx:
     build:
@@ -90,7 +91,7 @@ services:
     build:
       context: ./containers/python
     volumes:
-      - ./../servers/python/src:/code
+      - ./../servers/python:/code
     environment:
       - DB_HOST=percona
       - DB_PORT=3306
@@ -102,9 +103,7 @@ services:
         condition: service_healthy
     ports:
       - ${PYTHON_BIND}:80
-    # command: tail -f /dev/null
-    # command: sh -c "pip install --no-cache-dir -r requirements.txt; uvicorn src.main:app --host 0.0.0.0 --port 80 --reload"
-    command: sh -c "uvicorn main:app --host 0.0.0.0 --port 80 --reload --workers 10"
+    command: sh -c "pip install --no-cache-dir -r /code/requirements.txt; cd /code/src/; uvicorn main:app --host 0.0.0.0 --port 80 --reload"
 
   nest:
     build:

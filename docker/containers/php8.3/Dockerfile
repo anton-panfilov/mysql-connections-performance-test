@@ -39,5 +39,3 @@ RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 #--- clean ---
 RUN rm -rf /tmp/*
 RUN apt-get clean
-
-ENTRYPOINT /usr/sbin/php-fpm8.3 -F -O

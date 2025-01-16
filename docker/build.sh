@@ -22,9 +22,5 @@ fi
 
 ./stop.sh # stop before start
 
-cp ./../python/requirements.txt ./containers/python/requirements.txt
-
 echo -e "${HL_EMOJI} ${HL_BOLD_UNDERLINE}${UP_TEXT}: ${HL_PURPLE}${PROJECT}${HL_END}"
 docker compose -p ${PROJECT} build
-
-rm ./containers/python/requirements.txt
