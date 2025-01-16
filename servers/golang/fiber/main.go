@@ -1,12 +1,9 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"gotest/libs/schema"
 	"gotest/libs/utils"
 	"io"
@@ -56,23 +53,28 @@ func getDataSizeFromQuery(c *fiber.Ctx) uint32 {
 }
 
 func main() {
-	environment := utils.GetEnvironmentInstance()
-	db, err := sql.Open("mysql", environment.Percona().DataSource())
+	//environment := utils.GetEnvironmentInstance()
+	//db, err := sql.Open("mysql", environment.Percona().DataSource())
+	//if err != nil {
+	//	log.Fatalf("Failed to connect to the database: %v", err)
+	//}
+	//defer db.Close()
+	//
+	//// Set connection pool settings
+	//db.SetMaxOpenConns(20)                  // Limit the number of open connections
+	//db.SetMaxIdleConns(10)                  // Number of idle connections to keep
+	//db.SetConnMaxLifetime(30 * time.Second) // Lifetime of each connection
+	//
+	//gormDB, err := gorm.Open(mysql.New(mysql.Config{
+	//	Conn: db,
+	//}), &gorm.Config{
+	//	//Logger: logger.Default.LogMode(logger.Info),
+	//})
+
+	err := utils.InitPercona()
 	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
+		panic(err)
 	}
-	defer db.Close()
-
-	// Set connection pool settings
-	db.SetMaxOpenConns(20)                  // Limit the number of open connections
-	db.SetMaxIdleConns(10)                  // Number of idle connections to keep
-	db.SetConnMaxLifetime(30 * time.Second) // Lifetime of each connection
-
-	gormDB, err := gorm.Open(mysql.New(mysql.Config{
-		Conn: db,
-	}), &gorm.Config{
-		//Logger: logger.Default.LogMode(logger.Info),
-	})
 
 	app := fiber.New(fiber.Config{
 		AppName:       "PL.api",
@@ -110,7 +112,7 @@ func main() {
 		data_size := getDataSizeFromQuery(c)
 		start := time.Now()
 		for i := uint32(0); i < data_size; i++ {
-			rows, err := db.Query("SELECT * FROM _sandbox where id = ?", i+first_element)
+			rows, err := utils.PerconaConnection.Query("SELECT * FROM _sandbox where id = ?", i+first_element)
 			if err == nil {
 				for rows.Next() {
 					var el schema.Sandbox
@@ -149,7 +151,7 @@ func main() {
 		first_element := uint32(1)
 		data_size := getDataSizeFromQuery(c)
 		start := time.Now()
-		stmt, _ := db.Prepare("SELECT * FROM _sandbox where id = ?")
+		stmt, _ := utils.PerconaConnection.Prepare("SELECT * FROM _sandbox where id = ?")
 		for i := uint32(0); i < data_size; i++ {
 			var el schema.Sandbox
 			row := stmt.QueryRow(i + first_element)
@@ -184,7 +186,7 @@ func main() {
 
 		start := time.Now()
 		for i := uint32(0); i < data_size; i++ {
-			gormDB.Raw("SELECT * FROM _sandbox where id=?", i).Scan(&result)
+			utils.PerconaConnectionGorm.Raw("SELECT * FROM _sandbox where id=?", i).Scan(&result)
 
 			if err != nil {
 				duration := time.Since(start).Seconds()
@@ -208,7 +210,7 @@ func main() {
 		})
 	})
 
-	err = app.Listen(fmt.Sprintf(":%d", environment.ServerPort))
+	err = app.Listen(fmt.Sprintf(":%d", utils.GetEnvironmentInstance().ServerPort))
 	if err != nil {
 		log.Fatal(err)
 	}

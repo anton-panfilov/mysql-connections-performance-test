@@ -38,7 +38,7 @@ services:
 
   golang.fiber:
     image: cosmtrek/air
-    working_dir: /application
+    working_dir: /application/fiber
     depends_on:
       percona:
         condition: service_healthy
@@ -52,7 +52,7 @@ services:
       - PERCONA_PASSWORD=${PERCONA_ROOT_PASSWORD}
       - PERCONA_DATABASE=${PERCONA_DATABASE_NAME}
     volumes:
-      - ./../servers/golang/http/:/application/
+      - ./../servers/golang/:/application/
 
   php8:
     build:
